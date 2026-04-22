@@ -1,0 +1,32 @@
+[
+  {
+    "nome": "Espresso",
+    "descricao": "Forte e encorpado",
+    "preco": "R$ 5,00",
+    "imagem": "../img/Café Express.jpg"
+  },
+  {
+    "nome": "Cappuccino",
+    "descricao": "Cremoso e equilibrado",
+    "preco": "R$ 10,00",
+    "imagem": "../img/Cappuccino.jpg"
+  },
+  {
+    "nome": "Latte",
+    "descricao": "Suave com leite",
+    "preco": "R$ 12,00",
+    "imagem": "../img/Latte.jfif.png"
+  },
+  {
+    "nome": "Croissant",
+    "descricao": "Massa folhada crocante",
+    "preco": "R$ 9,00",
+    "imagem": "../img/Croissant.jfif.png"
+  },
+  {
+    "nome": "Pão de queijo com linguiça temperada",
+    "descricao": "Recheado e saboroso",
+    "preco": "R$ 11,00",
+    "imagem": "../img/Pao.jpg"
+  }
+]

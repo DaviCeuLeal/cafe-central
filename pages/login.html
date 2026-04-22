@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+
+<link rel="stylesheet" href="../css/style.css">
+<script defer src="../js/script.js"></script>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">☕ Café Central</div>
+
+    <nav id="nav-links">
+        <a href="index.html">Início</a>
+        <a href="cardápio.html">Cardápio</a>
+        <a href="sobre.html">Sobre</a>
+        <a href="contato.html">Contato</a>
+    
+        <!-- dinâmica -->
+        <span id="area-usuario"></span>
+    </nav>
+
+    <div class="menu-mobile" onclick="abrirMenu()">☰</div>
+</header>
+
+<div id="menu-lateral">
+    <a href="index.html">Início</a>
+    <a href="cardápio.html">Cardápio</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="contato.html">Contato</a>
+
+    <span id="area-usuario-mobile"></span>
+</div>
+
+<section class="form-container fade">
+    <h1>Login</h1>
+    <p>Entre na sua conta 👇</p>
+
+    <form id="formLogin">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="senha" placeholder="Senha" required>
+
+        <button type="submit">Entrar</button>
+    </form>
+</section>
+
+<footer>
+    <p>© 2026 Café Central</p>
+</footer>
+
+<script>
+document.getElementById("formLogin").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (usuario && usuario.email === email && usuario.senha === senha) {
+        alert("Login realizado!");
+        localStorage.setItem("logado", "true");
+        window.location.href = "index.html";
+    } else {
+        alert("Email ou senha incorretos!");
+    }
+});
+</script>
+
+</body>
+</html>

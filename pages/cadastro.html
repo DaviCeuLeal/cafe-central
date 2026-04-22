@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro</title>
+
+<link rel="stylesheet" href="../css/style.css">
+<script defer src="../js/script.js"></script>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">☕ Café Central</div>
+
+    <nav id="nav-links">
+        <a href="index.html">Início</a>
+        <a href="cardápio.html">Cardápio</a>
+        <a href="sobre.html">Sobre</a>
+        <a href="contato.html">Contato</a>
+    
+        <!-- dinâmica -->
+        <span id="area-usuario"></span>
+    </nav>
+
+    <div class="menu-mobile" onclick="abrirMenu()">☰</div>
+</header>
+
+<div id="menu-lateral">
+    <a href="index.html">Início</a>
+    <a href="cardápio.html">Cardápio</a>
+    <a href="sobre.html">Sobre</a>
+    <a href="contato.html">Contato</a>
+
+    <span id="area-usuario-mobile"></span>
+</div>
+
+<section class="form-container fade">
+    <h1>Cadastro</h1>
+    <p>Crie sua conta 👇</p>
+
+    <form id="formCadastro">
+        <input type="text" id="nome" placeholder="Nome" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="senha" placeholder="Senha" required>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+</section>
+
+<footer>
+    <p>© 2026 Café Central</p>
+</footer>
+
+<script>
+document.getElementById("formCadastro").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const usuario = {
+        nome: document.getElementById("nome").value,
+        email: document.getElementById("email").value,
+        senha: document.getElementById("senha").value
+    };
+
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+
+    alert("Cadastro realizado!");
+    window.location.href = "login.html";
+});
+</script>
+
+</body>
+</html>
