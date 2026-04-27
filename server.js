@@ -1,184 +1,125 @@
-/* 
-===============================================
-1 PARTE - CONFIGURAR O SERVIDOR
+/* ===============================================
+1ª PARTE - CONFIGURAR O SERVIDOR
 ===============================================
 */
 
-// Importar credenciais
 require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt"); // Corrigido para "bcrypt" conforme o seu package.json
 const pool = require("./db.js");
 
 const app = express();
 
-// 🔥 TROCA AQUI (coloque o link do seu site)
+// Configuração do CORS - Permite que o seu site no GitHub aceda à API
 const listOrigins = [
     "http://localhost:5501",
     "http://127.0.0.1:5501",
-    "https://seusite.github.io" // <-- MUDE AQUI
+    "https://daviceuleal.github.io" // Substitua pelo link exato do seu projeto
 ];
 
 app.use(cors({
-    origin:listOrigins,
-    credentials:true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE','OPTIONS'],
-    allowedHeaders: ["Content-Type","Authorization"]
+    origin: listOrigins,
+    credentials: true, // Necessário para cookies de sessão
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
 
-// Sessão
-const sessionConfig = {
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    name: "techeduca.sid",
-    cookie: {
-        httpOnly : true,
-        maxAge: 1000 * 60 * 60
-    }
-};
-
-if(process.env.NODE_ENV == "production"){
-    app.set("trust proxy",1),
-    sessionConfig.cookie.sameSite = "none",
-    sessionConfig.cookie.secure = true
-} else{
-    sessionConfig.cookie.sameSite="lax",
-    sessionConfig.cookie.secure = false
+// Confiança no Proxy (Essencial para quando subir o site para o Render/Railway)
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
 }
 
-app.use(session(sessionConfig));
+// Configuração da Sessão
+app.use(session({
+    secret: process.env.SESSION_SECRET || "uma_chave_muito_segura",
+    resave: false,
+    saveUninitialized: false,
+    name: "cafecentral.sid",
+    cookie: {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60, // 1 hora de duração
+        secure: process.env.NODE_ENV === "production", // Apenas via HTTPS em produção
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
+    }
+}));
 
-/* 
-===============================================
-2 PARTE - ROTAS
+/* ===============================================
+2ª PARTE - ROTAS
 ===============================================
 */
 
-// 🔥 AQUI FOI O PRINCIPAL ERRO (AGORA SALVA NO BANCO)
-app.post("/mensagem", async (req,res) => {
-    try{
-        const {nome,email,mensagem} = req.body;
+// ROTA DE LOGIN
+app.post("/login", async (req, res) => {
+    try {
+        const { email, senha } = req.body;
 
-        if(!nome || !email || !mensagem){
-            return res.status(400).json({erro:"Preencha todos os campos"});
+        if (!email || !senha) {
+            return res.status(400).json({ erro: "Preencha todos os campos" });
         }
 
-        await pool.execute(
-            "INSERT INTO tb_mensagens (nome,email,mensagem) VALUES (?,?,?)",
-            [nome,email,mensagem]
-        );
-
-        res.status(201).send("Mensagem salva com sucesso!");
-
-    }catch(error){
-        console.error(error);
-        res.status(500).send("Erro ao salvar mensagem");
-    }
-});
-
-// CADASTRO (já tava certo)
-app.post("/cadastro", async (req,res) => {
-    try{
-        const {nome,email,senha} = req.body;
-
-        if(!nome || !email || !senha ){
-            return res.status(400).json({erro:"Preencha todos os campos"});
-        }
-
+        // Busca o usuário no banco
         const [rows] = await pool.execute(
-            "SELECT id FROM tb_usuarios WHERE email=?",[email]
+            "SELECT id, nome, email, senha FROM tb_usuarios WHERE email = ?", 
+            [email]
         );
 
-        if(rows.length > 0){
-            return res.status(409).json({erro: "E-mail já cadastrado"});
-        };
-        
-        const senhaHash = await bcrypt.hash(senha,10);
-
-        await pool.execute(
-            "INSERT INTO tb_usuarios(nome,email,senha) VALUES(?,?,?)",
-            [nome,email,senhaHash]
-        );
-
-        res.status(201).json({mensagem:"Cadastro realizado com sucesso!"});
-
-    } catch(error){
-        console.error(error);
-        res.status(500).json({erro: "Erro ao cadastrar usuário"})
-    }
-});
-
-// LOGIN (já tava certo)
-app.post("/login", async (req,res) => {
-    try{
-        const {email,senha} = req.body;
-
-        if(!email || !senha ){
-            return res.status(400).json({erro:"Preencha todos os campos"});
+        if (rows.length === 0) {
+            return res.status(401).json({ erro: "Usuário não encontrado" });
         }
-
-        const [rows] = await pool.execute(
-            "SELECT id, nome, email, senha FROM tb_usuarios WHERE email=?",[email]
-        );
-
-        if(rows.length == 0){
-            return res.status(401).json({erro: "Usuário não encontrado"});
-        };
 
         const usuario = rows[0];
 
-        const senhaCorreta = await bcrypt.compare(senha,usuario.senha);
+        // Compara a senha enviada com o hash do banco
+        const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
 
-        if(!senhaCorreta){
-            return res.status(401).json({erro: "Senha inválida"});
-        };
+        if (!senhaCorreta) {
+            return res.status(401).json({ erro: "Senha inválida" });
+        }
 
+        // Salva os dados na sessão
         req.session.usuario = {
             id: usuario.id,
             nome: usuario.nome,
             email: usuario.email
         };
 
-        res.json({mensagem:"Login realizado com sucesso!"});
+        res.json({ mensagem: "Login realizado com sucesso!" });
 
-    } catch(error){
-        console.error(error);
-        res.status(500).json({erro: "Erro ao fazer login"})
+    } catch (error) {
+        console.error("Erro no Servidor:", error);
+        res.status(500).json({ erro: "Erro interno no servidor" });
     }
 });
 
-// VERIFICAR SESSÃO
+// ROTA PARA VERIFICAR SE O USUÁRIO ESTÁ LOGADO
 app.get("/me", (req, res) => {
-    if(!req.session.usuario){
-        return res.status(401).json({logado:false});
+    if (!req.session.usuario) {
+        return res.status(401).json({ logado: false });
     }
 
     res.json({
-        logado:true,
+        logado: true,
         usuario: req.session.usuario
-    })
-});
-
-// LOGOUT
-app.post("/logout", (req, res) => {
-    req.session.destroy(() => {
-        res.clearCookie("techeduca.sid")
-        res.json({mensagem: "Logout realizado"});
     });
 });
 
-/* 
-===============================================
-3 PARTE - INICIAR
-===============================================
-*/
+// ROTA DE LOGOUT
+app.post("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ erro: "Erro ao sair" });
+        }
+        res.clearCookie("cafecentral.sid");
+        res.json({ mensagem: "Logout realizado com sucesso" });
+    });
+});
 
-app.listen(3000, () => {
-    console.log("Servidor rodando em http://localhost:3000");
+// INICIALIZAÇÃO
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor a correr na porta ${PORT}`);
 });

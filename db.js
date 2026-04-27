@@ -1,6 +1,5 @@
-/* 
-===============================================
-CONFIGURAÇÃO DO BANCO DE DADOS
+/* ===============================================
+CONFIGURAÇÃO DO BANCO DE DADOS CORRIGIDA
 ===============================================
 */
 
@@ -12,19 +11,17 @@ const mysql = require("mysql2/promise");
 
 // Cria o pool de conexões
 const pool = mysql.createPool({  
-    host: cafecentral-ea-ddb1.g.aivencloud.com,  
+    // ✅ CORREÇÃO: Agora puxando corretamente do seu arquivo .env
+    host: process.env.DB_HOST,  
     port: process.env.DB_PORT, 
     user: process.env.DB_USER, 
     password: process.env.DB_PASSWORD, 
     database: process.env.DB_NAME, 
+    
+    // Configurações para o Aiven (Cloud)
     ssl: { rejectUnauthorized: false },    
-  // habilita conexão segura com o Aiven via SSL
-
     waitForConnections: true, 
-        //se todas conexões tiverem ocupadas, aguarda na fila
-
     connectionLimit: 10 
-          // máximo de 10 conexões abertas ao mesmo tempo
 });
 
 // Exporta o pool para usar no server.js
