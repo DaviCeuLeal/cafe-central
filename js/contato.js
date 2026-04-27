@@ -26,7 +26,7 @@ form.addEventListener("submit", async function(event){
     */
 
     try{
-        const resposta = await fetch(fetch("https://techeduca.onrender.com/mensagem"),{
+        const resposta = await fetch(fetch("https://cafe-central-koge.onrender.com/mensagem"),{
             method:"POST",
             headers: {
                 "Content-Type":"application/json"

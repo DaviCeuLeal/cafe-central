@@ -3,7 +3,7 @@ const formLogin = document.getElementById("formLogin");
 
 // URL da API
 //const API_URL = "http://localhost:3000"
-const API_URL = "https://techeduca.onrender.com"
+const API_URL = "https://cafe-central-koge.onrender.com"
 
 
 /* 
