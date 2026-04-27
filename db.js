@@ -11,7 +11,7 @@ const mysql = require("mysql2/promise");
 
 // Cria o pool de conexões
 const pool = mysql.createPool({  
-    // ✅ CORREÇÃO: Agora puxando corretamente do seu arquivo .env
+    //  CORREÇÃO: Agora puxando corretamente do seu arquivo .env
     host: process.env.DB_HOST,  
     port: process.env.DB_PORT, 
     user: process.env.DB_USER, 

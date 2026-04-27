@@ -14,11 +14,10 @@ const app = express();
 
 // Configuração do CORS - Permite que o seu site no GitHub aceda à API
 const listOrigins = [
-    "http://localhost:5501",
-    "http://127.0.0.1:5501",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
     "https://daviceuleal.github.io" // Substitua pelo link exato do seu projeto
 ];
-
 app.use(cors({
     origin: listOrigins,
     credentials: true, // Necessário para cookies de sessão
@@ -51,6 +50,44 @@ app.use(session({
 2ª PARTE - ROTAS
 ===============================================
 */
+
+//ROTA DE CADASTRO 
+app.post("/cadastro", async (req,res) => {
+    try{
+
+        const {nome,email,senha} = req.body // forma desestruturada
+
+        if(!nome || !email || !senha ){
+            return res.status(400).json({erro:"Preencha todos os campos"});
+        }
+
+        // Crio um array[rows] e guardo dentro o resultado do select
+        const [rows] = await pool.execute(  //consulta no banco
+            "SELECT id FROM tb_usuarios WHERE email=?",[email] 
+                //busca se o e-mail existe no banco e retorna o id
+        );
+
+        if(rows.length > 0){
+            return res.status(409).json({erro: "E-mail já cadastrado"});
+        };
+        
+        // criptografa a senha e guarda dentro da variável
+        const senhaHash = await bcrypt.hash(senha,10);   
+            //gera o hash da senha com custo 10(mais seguro)
+
+        // Inserir os dados no banco de dados
+        await pool.execute( // executa o INSERT no banco
+            "INSERT INTO tb_usuarios(nome,email,senha) VALUES(?,?,?)",
+                        [nome,email,senhaHash] // substitui os ? pelos valores reais
+        );
+        // retorna 201 (criado com sucesso)
+        res.status(201).json({mensagem:" Cadastro realizado com sucesso!"});
+    } catch(error){
+        // retorna 500 se o servidor não conseguir cadastrar
+        console.error(error); // aparece no terminal pro dev
+        res.status(500).json({erro: "Erro ao cadastrar usuário"})
+    }
+});
 
 // ROTA DE LOGIN
 app.post("/login", async (req, res) => {
@@ -123,3 +160,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor a correr na porta ${PORT}`);
 });
+
+

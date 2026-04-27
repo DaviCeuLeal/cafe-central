@@ -20,17 +20,17 @@ if(formCadastro){
         const nome = document.getElementById("nome").value.trim();
         const email = document.getElementById("email").value.trim();
         const senha = document.getElementById("senha").value;
-        const confirmaSenha = document.getElementById("confirmasenha").value;
+        const confirmasenha = document.getElementById("confirmasenha").value;
         
         const mensagem = document.getElementById("mensagemCadastro");
         mensagem.textContent="";
         
-        if(!nome || !email || !senha || !confirmaSenha){
+        if(!nome || !email || !senha || !confirmasenha){
             mensagem.textContent = "Preencha os campos";
             return
         }
 
-        if(senha !== confirmaSenha){
+        if(senha !== confirmasenha){
             mensagem.textContent = "As senhas não coincidem";
             return
         }
