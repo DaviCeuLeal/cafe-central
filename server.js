@@ -156,9 +156,9 @@ app.post("/logout", (req, res) => {
 });
 
 // INICIALIZAÇÃO
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor a correr na porta ${PORT}`);
+//const PORT = process.env.PORT || 3000;
+app.listen(3000, () => {
+    console.log(`Servidor a correr na porta 3000`);
 });
 
 
